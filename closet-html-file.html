@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Closet</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0f;color:#fff;min-height:100vh}
+.header{position:sticky;top:0;z-index:50;backdrop-filter:blur(20px);background:rgba(10,10,15,.8);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+.logo h1{font-size:18px;font-weight:700}
+.logo small{font-size:11px;color:#888;display:block}
+.nav{display:flex;gap:8px}
+.nav-btn{padding:8px 16px;border-radius:50px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:rgba(255,255,255,.08);color:#aaa;font-family:inherit;transition:all .2s}
+.nav-btn:hover{background:rgba(255,255,255,.15)}
+.nav-btn.on{background:#fff;color:#111}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px}
+.hide{display:none!important}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:16px;margin-bottom:24px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 20px;border-radius:16px;font-size:13px;font-weight:600;white-space:nowrap;border:none;cursor:pointer;background:rgba(255,255,255,.05);color:#888;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:8px}
+.tab:hover{background:rgba(255,255,255,.1)}
+.tab.on{color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px;margin-bottom:24px}
+.add-card{aspect-ratio:1;border-radius:16px;border:2px dashed rgba(255,255,255,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#888;cursor:pointer;background:none;font-family:inherit;transition:all .2s}
+.add-card:hover{border-color:rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.03)}
+.add-circle{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:24px;transition:all .2s}
+.add-card:hover .add-circle{background:rgba(255,255,255,.15)}
+.add-card span{font-size:13px;font-weight:600}
+.card{aspect-ratio:1;border-radius:16px;overflow:hidden;position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);transition:all .2s}
+.card:hover{border-color:rgba(255,255,255,.25)}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+.card .name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);padding:24px 12px 10px}
+.card .name p{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.card .del{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(239,68,68,.85);border:none;color:#fff;cursor:pointer;font-size:13px;opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center}
+.card:hover .del{opacity:1}
+.gen-btn{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;color:#fff;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 30px rgba(124,58,237,.25);transition:all .2s}
+.gen-btn:hover{box-shadow:0 8px 40px rgba(124,58,237,.45);transform:translateY(-1px)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.top-bar h2{font-size:24px;font-weight:700}
+.shuf-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;background:rgba(255,255,255,.08);border:none;color:#ccc;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.shuf-btn:hover{background:rgba(255,255,255,.15)}
+.o-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+.o-card{border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);overflow:hidden;transition:all .2s}
+.o-card:hover{border-color:rgba(255,255,255,.18)}
+.o-items{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px}
+.o-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.3)}
+.o-item img{width:100%;height:100%;object-fit:cover;display:block}
+.o-item .tag{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);padding:4px 8px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.o-foot{padding:10px 16px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.o-foot span{font-size:13px;color:#888}
+.sv-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:50px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.sv-btn.heart{background:rgba(236,72,153,.15);color:#f9a8d4}
+.sv-btn.heart:hover{background:rgba(236,72,153,.3)}
+.sv-btn.trash{background:rgba(239,68,68,.15);color:#fca5a5}
+.sv-btn.trash:hover{background:rgba(239,68,68,.3)}
+.empty{text-align:center;padding:80px 20px;color:#555;grid-column:1/-1}
+.empty .big{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty p{font-size:16px;margin-bottom:16px}
+.empty button{padding:10px 24px;border-radius:50px;background:rgba(255,255,255,.08);border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit}
+.empty button:hover{background:rgba(255,255,255,.15)}
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#16161f;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:24px;width:100%;max-width:420px}
+.m-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.m-head h3{font-size:20px;font-weight:700}
+.m-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.m-close:hover{background:rgba(255,255,255,.15)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;color:#888;margin-bottom:8px}
+.m-cats{display:flex;flex-wrap:wrap;gap:8px}
+.m-cat{padding:8px 16px;border-radius:12px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:rgba(255,255,255,.08);color:#888;font-family:inherit;transition:all .2s}
+.m-cat:hover{background:rgba(255,255,255,.15)}
+.m-cat.on{color:#fff}
+.m-input{width:100%;padding:12px 16px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;outline:none;font-family:inherit}
+.m-input:focus{border-color:rgba(255,255,255,.3)}
+.m-input::placeholder{color:#555}
+.m-upload{width:100%;padding:48px 20px;border-radius:12px;border:2px dashed rgba(255,255,255,.15);display:flex;flex-direction:column;align-items:center;gap:10px;color:#888;cursor:pointer;background:none;font-family:inherit;transition:all .2s}
+.m-upload:hover{border-color:rgba(255,255,255,.3);color:#fff;background:rgba(255,255,255,.03)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">C</div>
+    <div><h1>My Closet</h1><small id="countEl">0 items</small></div>
+  </div>
+  <div class="nav" id="navEl"></div>
+</div>
+
+<div class="wrap" id="vCloset">
+  <div class="tabs" id="tabsEl"></div>
+  <div class="grid" id="gridEl"></div>
+  <button class="gen-btn hide" id="genEl" onclick="doGenerate()">&#10024; Generate Outfit Ideas</button>
+</div>
+
+<div class="wrap hide" id="vOutfits">
+  <div class="top-bar">
+    <h2>Outfit Ideas</h2>
+    <button class="shuf-btn" onclick="doGenerate()">&#128256; Shuffle</button>
+  </div>
+  <div class="o-grid" id="oGridEl"></div>
+</div>
+
+<div class="wrap hide" id="vSaved">
+  <div class="top-bar"><h2>Saved Outfits</h2></div>
+  <div class="o-grid" id="sGridEl"></div>
+</div>
+
+<div class="overlay hide" id="overlayEl" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="m-head">
+      <h3>Add Clothing Item</h3>
+      <button class="m-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <div class="m-cats" id="mCatsEl"></div>
+    </div>
+    <div class="field">
+      <label>Item Name</label>
+      <input class="m-input" id="mNameEl" placeholder="e.g. Blue Denim Jacket">
+    </div>
+    <div class="field">
+      <label>Photo</label>
+      <input type="file" accept="image/*" capture="environment" id="mFileEl" style="display:none" onchange="handleFileUpload(this)">
+      <button class="m-upload" onclick="document.getElementById('mFileEl').click()">
+        <span style="font-size:32px">&#128247;</span>
+        <span style="font-size:14px;font-weight:600">Take Photo or Upload</span>
+        <span style="font-size:11px;color:#555">Tap to open camera or gallery</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var CATS = ["Tops", "Bottoms", "Shoes", "Outerwear", "Accessories"];
+  var ICONS = { Tops: "&#128085;", Bottoms: "&#128086;", Shoes: "&#128095;", Outerwear: "&#129509;", Accessories: "&#128141;" };
+  var GRADS = {
+    Tops: "linear-gradient(135deg,#3b82f6,#22d3ee)",
+    Bottoms: "linear-gradient(135deg,#8b5cf6,#a855f7)",
+    Shoes: "linear-gradient(135deg,#f59e0b,#fb923c)",
+    Outerwear: "linear-gradient(135deg,#10b981,#14b8a6)",
+    Accessories: "linear-gradient(135deg,#ec4899,#f43f5e)"
+  };
+
+  var items = { Tops: [], Bottoms: [], Shoes: [], Outerwear: [], Accessories: [] };
+  var activeCat = "Tops";
+  var currentView = "closet";
+  var uploadCat = "Tops";
+  var outfits = [];
+  var savedOutfits = [];
+
+  function getTotal() {
+    var n = 0;
+    CATS.forEach(function(c) { n += items[c].length; });
+    return n;
+  }
+
+  function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function outfitKey(fit) {
+    return Object.keys(fit).map(function(c) { return fit[c].id; }).join("-");
+  }
+
+  function esc(str) {
+    var d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // NAV
+  window.goToView = function(v) {
+    currentView = v;
+    renderNav();
+    document.getElementById("vCloset").className = v === "closet" ? "wrap" : "wrap hide";
+    document.getElementById("vOutfits").className = v === "outfits" ? "wrap" : "wrap hide";
+    document.getElementById("vSaved").className = v === "saved" ? "wrap" : "wrap hide";
+    if (v === "outfits") renderOutfits();
+    if (v === "saved") renderSaved();
+  };
+
+  function renderNav() {
+    var h = "";
+    var views = [
+      { key: "closet", label: "Closet" },
+      { key: "outfits", label: "Outfits" },
+      { key: "saved", label: "Saved (" + savedOutfits.length + ")" }
+    ];
+    views.forEach(function(v) {
+      var cls = "nav-btn" + (currentView === v.key ? " on" : "");
+      h += '<button class="' + cls + '" onclick="goToView(\'' + v.key + '\')">' + v.label + '</button>';
+    });
+    document.getElementById("navEl").innerHTML = h;
+  }
+
+  // TABS
+  window.setCategory = function(c) {
+    activeCat = c;
+    renderTabs();
+    renderGrid();
+  };
+
+  function renderTabs() {
+    var h = "";
+    CATS.forEach(function(c) {
+      var isActive = c === activeCat;
+      var style = isActive ? ' style="background:' + GRADS[c] + ';color:#fff"' : '';
+      var cls = "tab" + (isActive ? " on" : "");
+      h += '<button class="' + cls + '"' + style + ' onclick="setCategory(\'' + c + '\')">';
+      h += ICONS[c] + ' ' + c + ' <span style="font-size:11px;opacity:.7">(' + items[c].length + ')</span>';
+      h += '</button>';
+    });
+    document.getElementById("tabsEl").innerHTML = h;
+  }
+
+  // GRID
+  window.deleteItem = function(cat, id) {
+    items[cat] = items[cat].filter(function(it) { return it.id !== id; });
+    renderTabs();
+    renderGrid();
+  };
+
+  function renderGrid() {
+    var h = '<button class="add-card" onclick="openModal()">';
+    h += '<div class="add-circle">+</div>';
+    h += '<span>Add Item</span></button>';
+
+    items[activeCat].forEach(function(it) {
+      h += '<div class="card">';
+      h += '<img src="' + it.src + '" alt="' + esc(it.name) + '">';
+      h += '<div class="name"><p>' + esc(it.name) + '</p></div>';
+      h += '<button class="del" onclick="deleteItem(\'' + activeCat + '\',' + it.id + ')">&#10005;</button>';
+      h += '</div>';
+    });
+
+    document.getElementById("gridEl").innerHTML = h;
+    var t = getTotal();
+    document.getElementById("countEl").textContent = t + " items";
+    document.getElementById("genEl").className = t >= 2 ? "gen-btn" : "gen-btn hide";
+  }
+
+  // MODAL
+  window.openModal = function() {
+    uploadCat = activeCat;
+    document.getElementById("mNameEl").value = "";
+    renderModalCats();
+    document.getElementById("overlayEl").className = "overlay";
+  };
+
+  window.closeModal = function() {
+    document.getElementById("overlayEl").className = "overlay hide";
+  };
+
+  window.setUploadCat = function(c) {
+    uploadCat = c;
+    renderModalCats();
+  };
+
+  function renderModalCats() {
+    var h = "";
+    CATS.forEach(function(c) {
+      var isActive = c === uploadCat;
+      var style = isActive ? ' style="background:' + GRADS[c] + ';color:#fff"' : '';
+      var cls = "m-cat" + (isActive ? " on" : "");
+      h += '<button class="' + cls + '"' + style + ' onclick="setUploadCat(\'' + c + '\')">';
+      h += ICONS[c] + ' ' + c + '</button>';
+    });
+    document.getElementById("mCatsEl").innerHTML = h;
+  }
+
+  window.handleFileUpload = function(input) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var name = document.getElementById("mNameEl").value || file.name.split(".")[0];
+      items[uploadCat].push({ id: Date.now(), name: name, src: ev.target.result });
+      closeModal();
+      input.value = "";
+      activeCat = uploadCat;
+      renderTabs();
+      renderGrid();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // GENERATE
+  window.doGenerate = function() {
+    var t = items.Tops;
+    var b = items.Bottoms;
+    var s = items.Shoes;
+    var o = items.Outerwear;
+    var a = items.Accessories;
+    if (!t.length && !b.length) return;
+
+    outfits = [];
+    var existing = {};
+    var max = Math.min(12, Math.max(4, (t.length || 1) * (b.length || 1)));
+    var attempts = 0;
+
+    while (attempts < max * 3 && outfits.length < max) {
+      var fit = {};
+      if (t.length) fit.Tops = pick(t);
+      if (b.length) fit.Bottoms = pick(b);
+      if (s.length) fit.Shoes = pick(s);
+      if (o.length && Math.random() > 0.4) fit.Outerwear = pick(o);
+      if (a.length && Math.random() > 0.5) fit.Accessories = pick(a);
+      var k = outfitKey(fit);
+      if (!existing[k]) {
+        existing[k] = true;
+        outfits.push(fit);
+      }
+      attempts++;
+    }
+    goToView("outfits");
+  };
+
+  // OUTFIT CARD
+  function buildOutfitCard(fit, index, type) {
+    var h = '<div class="o-card"><div class="o-items">';
+    Object.keys(fit).forEach(function(cat) {
+      var it = fit[cat];
+      h += '<div class="o-item">';
+      h += '<img src="' + it.src + '" alt="' + esc(it.name) + '">';
+      h += '<div class="tag">' + ICONS[cat] + ' ' + esc(it.name) + '</div>';
+      h += '</div>';
+    });
+    h += '</div><div class="o-foot">';
+    if (type === "outfit") {
+      h += '<span>Outfit #' + (index + 1) + '</span>';
+      h += '<button class="sv-btn heart" onclick="saveOutfit(' + index + ')">&#10084;&#65039; Save</button>';
+    } else {
+      h += '<span>Saved #' + (index + 1) + '</span>';
+      h += '<button class="sv-btn trash" onclick="removeSavedOutfit(' + index + ')">&#128465;&#65039; Remove</button>';
+    }
+    h += '</div></div>';
+    return h;
+  }
+
+  function renderOutfits() {
+    var el = document.getElementById("oGridEl");
+    if (!outfits.length) {
+      el.innerHTML = '<div class="empty"><div class="big">&#128085;</div><p>Add items to your closet first, then generate outfits!</p><button onclick="goToView(\'closet\')">Go to Closet</button></div>';
+      return;
+    }
+    var h = "";
+    outfits.forEach(function(fit, i) { h += buildOutfitCard(fit, i, "outfit"); });
+    el.innerHTML = h;
+  }
+
+  window.saveOutfit = function(idx) {
+    var fit = outfits[idx];
+    var k = outfitKey(fit);
+    var exists = savedOutfits.some(function(s) { return outfitKey(s) === k; });
+    if (exists) return;
+    savedOutfits.push(fit);
+    renderNav();
+  };
+
+  window.removeSavedOutfit = function(idx) {
+    savedOutfits.splice(idx, 1);
+    renderNav();
+    renderSaved();
+  };
+
+  function renderSaved() {
+    var el = document.getElementById("sGridEl");
+    if (!savedOutfits.length) {
+      el.innerHTML = '<div class="empty"><div class="big">&#10084;&#65039;</div><p>No saved outfits yet</p><button onclick="doGenerate()">Generate Outfits</button></div>';
+      return;
+    }
+    var h = "";
+    savedOutfits.forEach(function(fit, i) { h += buildOutfitCard(fit, i, "saved"); });
+    el.innerHTML = h;
+  }
+
+  // INIT
+  renderNav();
+  renderTabs();
+  renderGrid();
+})();
+</script>
+</body>
+</html>
